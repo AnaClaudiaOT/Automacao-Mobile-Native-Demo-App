@@ -61,7 +61,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y openjdk-11-jdk
           wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
-          export PATH=$PATH:/opt/allure-2.22.3/bin
+          echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
@@ -69,13 +69,7 @@ jobs:
 
       # Gera o relatório Allure
       - name: Generate Allure Report
-        run: |
-          if [ -d "allure-results" ]; then
-            allure generate allure-results --clean
-          else
-            echo "Diretório allure-results não encontrado. Certifique-se de que os resultados dos testes foram salvos."
-            exit 1
-          fi
+        run: npm run allure:generate
 
       # Faz upload do relatório gerado para a workspace
       - name: Upload Allure Report
