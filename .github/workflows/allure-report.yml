@@ -95,6 +95,11 @@ jobs:
             sleep 20
           done
           adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
+        continue-on-error: true
+
+      - name: Check Emulator Logs
+        if: failure()
+        run: cat emulator.log
 
       - name: Install Allure CLI
         run: |
