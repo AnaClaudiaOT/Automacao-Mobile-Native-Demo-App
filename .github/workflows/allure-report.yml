@@ -58,7 +58,10 @@ jobs:
       # Instalação do Allure
       - name: Install Allure CLI
         run: |
-          sudo apt-get install -y allure
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-11-jdk
+          wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
+          export PATH=$PATH:/opt/allure-2.22.3/bin
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests

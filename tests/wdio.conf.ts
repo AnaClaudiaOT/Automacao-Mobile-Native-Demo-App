@@ -34,7 +34,7 @@ export const config: Config = {
             'appium:autoGrantPermissions': true,
             'appium:autoAcceptAlerts': true,
             'appium:app': 'tests/app/app-release.apk', // Ajuste conforme o caminho do app
-            'appium:chromedriverExecutable': 'C:/Users/Ana/Downloads/native-demo-app/chrome/win64-124.0.6367.207/chrome-win64/chromedriver.exe'
+            // 'appium:chromedriverExecutable': 'C:/Users/Ana/Downloads/native-demo-app/chrome/win64-124.0.6367.207/chrome-win64/chromedriver.exe'
         },
     ],
     //
@@ -48,17 +48,8 @@ export const config: Config = {
     connectionRetryCount: 3,
     //
     // Test runner services
-    services: [
-        [
-            'appium',
-            {
-                args: {
-                    address: 'localhost',
-                    port: 4723,
-                },
-            },
-        ],
-    ],
+    services: ['chromedriver', ['appium', { args: { address: 'localhost', port: 4723 } }]],
+
     framework: 'mocha',
     reporters: [['allure', { outputDir: 'allure-results' }]],
     mochaOpts: {
