@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       # Configuração do Android SDK e Emulador
-      - name: Set up Android SDK and Emulator
+      - name: Set up Android SDK and Emulator for ARM
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
@@ -38,21 +38,24 @@ jobs:
           mkdir -p $ANDROID_HOME/cmdline-tools
 
           # Baixar e descompactar o Command Line Tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-
-          # Ajustar estrutura do Command Line Tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # Atualizar SDK Manager
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
+          # Atualizar SDK Manager e aceitar licenças
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update || true
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-          # Aceitar licenças e instalar pacotes necessários
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3" "system-images;android-29;google_apis;armeabi-v7a" "emulator"
+          # Instalar pacotes necessários
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;31.0.0" \
+            "system-images;android-31;google_apis;arm64-v8a" \
+            "emulator"
 
-          # Criar e configurar o emulador ARM (evita KVM)
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-29;google_apis;armeabi-v7a" --force
+          # Criar e configurar o emulador ARM
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --force
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
 
           # Aguardar inicialização do emulador
