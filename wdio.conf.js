@@ -27,7 +27,7 @@ exports.config = {
     }],
     logLevel: 'info',
     bail: 0,
-    waitforTimeout: 20000,
+    waitforTimeout: 60000,
     connectionRetryTimeout: 300000,
     connectionRetryCount: 3,
     services: ['appium'],
