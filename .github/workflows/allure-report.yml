@@ -86,7 +86,7 @@ jobs:
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -no-accel &> emulator.log &
           echo "Esperando o emulador inicializar..."
           adb wait-for-device
-          for i in {1..15}; do
+          for i in {1..2}; do
             if adb shell getprop sys.boot_completed | grep -m 1 '1'; then
               echo "Emulador inicializado com sucesso!"
               break
