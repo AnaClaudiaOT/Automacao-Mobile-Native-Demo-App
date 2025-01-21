@@ -28,6 +28,25 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      # Configuração do Android SDK
+      - name: Set up Android SDK
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
+          sudo mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-11-jdk wget unzip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools/latest
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+      # Instalação do Allure CLI
+      - name: Install Allure CLI
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y allure
+
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
         run: npm run test
