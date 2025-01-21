@@ -50,10 +50,10 @@ jobs:
 
           # Aceitar licenças e instalar ferramentas necessárias
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "system-images;android-33;google_apis;x86_64"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "system-images;android-33;google_apis;armeabi-v7a"
 
-          # Criar e iniciar o emulador Android
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-33;google_apis;x86_64" --force
+          # Criar e iniciar o emulador Android baseado em ARM
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-33;google_apis;armeabi-v7a" --force
           $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window &
           adb wait-for-device
           adb shell input keyevent 82
