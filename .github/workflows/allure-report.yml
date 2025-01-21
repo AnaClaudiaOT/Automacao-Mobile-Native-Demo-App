@@ -61,13 +61,6 @@ jobs:
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
-      # Inicia o emulador
-      - name: Start Emulator
-        run: |
-          nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
-          sleep 30
-          adb wait-for-device
-
       # Instalação do Allure CLI
       - name: Install Allure CLI
         run: |
@@ -75,8 +68,6 @@ jobs:
           sudo apt-get install -y openjdk-11-jdk
           wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
           echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
-          export PATH=$PATH:/opt/allure-2.22.3/bin
-          allure --version || { echo "Allure não instalado corretamente."; exit 1; }
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
