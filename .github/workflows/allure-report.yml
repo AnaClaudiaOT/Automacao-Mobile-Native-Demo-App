@@ -14,96 +14,79 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout do repositório
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Configuração do Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20.x"
 
-      # Configuração do Java
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
 
-      # Instala dependências
       - name: Install Dependencies
         run: npm ci
 
-      # Configuração do Android SDK e Emulador
       - name: Set up Android SDK and Emulator
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 
-          # Criar diretório para o SDK
           mkdir -p $ANDROID_HOME/cmdline-tools
-
-          # Baixar e descompactar o Command Line Tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # Atualizar SDK Manager
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --verbose
-
-          # Aceitar licenças
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-
-          # Instalar pacotes necessários
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
 
-          # Validar onde o adb está instalado
           echo "Procurando o adb instalado..."
           find $ANDROID_HOME -name adb -type f || { echo "Erro: adb não foi encontrado. Verifique a instalação do platform-tools."; exit 1; }
 
-          # Adicionar o adb ao PATH
           export PATH=$ANDROID_HOME/platform-tools:$PATH
           echo "Verificando adb..."
           $ANDROID_HOME/platform-tools/adb version || { echo "Erro: ADB não está acessível. Verifique a instalação do platform-tools."; exit 1; }
 
-          # Criar e configurar o AVD
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86" --device "pixel_3" --force
 
-          # Listar os AVDs criados
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
-
-          # Exportar variáveis globalmente
           echo "Exportando variáveis para o ambiente global..."
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+          source $GITHUB_ENV
 
       - name: Install Missing Libraries for Emulator
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libpulse0
 
-        # Executar emulador
       - name: Run Emulator
-        run: emulator -avd test
+        run: |
+          nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect &
+          echo "Esperando o emulador inicializar..."
+          sleep 60
+          adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
 
-        # Executar adb device
-      - name: Run adb devices
-        run: adb devices
+      - name: Wait for Emulator
+        run: |
+          adb wait-for-device
+          adb shell getprop sys.boot_completed | grep -m 1 '1'
 
-      # Instalação do Allure CLI
       - name: Install Allure CLI
         run: |
           sudo apt-get update -y
           sudo apt-get install -y openjdk-11-jdk
           wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
           echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
+          source $GITHUB_ENV
 
-      # Executa os testes e gera os resultados do Allure
       - name: Run Tests
         run: npx wdio run wdio.conf.js --spec tests/specs/test.spec.js
 
-      # Gera o relatório Allure
       - name: Generate Allure Report
         run: |
           if [ -d "allure-results" ]; then
@@ -113,7 +96,6 @@ jobs:
             exit 1
           fi
 
-      # Faz upload do relatório gerado para a workspace
       - name: Upload Allure Report
         uses: actions/upload-artifact@v3
         with:
@@ -126,17 +108,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout do repositório
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Faz download do relatório gerado
       - name: Download Allure Report
         uses: actions/download-artifact@v3
         with:
           name: allure-report
 
-      # Publica o relatório no GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
