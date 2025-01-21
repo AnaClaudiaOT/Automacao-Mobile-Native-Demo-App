@@ -34,11 +34,11 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
 
-          # Atualizar SDK Manager
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
-
           # Criar diretório para o SDK
           mkdir -p $ANDROID_HOME/cmdline-tools
+
+          # Atualizar SDK Manager
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
 
           # Instalar dependências e Command Line Tools
           sudo apt-get update -y
