@@ -28,12 +28,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Configuração do Android SDK e Emulador
       - name: Set up Android SDK and Emulator
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export ANDROID_AVD_HOME=$ANDROID_HOME/.android/avd
-          export ANDROID_SDK_HOME=$ANDROID_HOME
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 
           # Criar diretório para o SDK
@@ -42,34 +39,22 @@ jobs:
           # Baixar e descompactar o Command Line Tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-
-          # Ajustar estrutura do Command Line Tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # Atualizar SDK Manager e instalar pacotes necessários
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
+          # Atualizar SDK Manager
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --verbose
+
+          # Aceitar licenças
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "system-images;android-31;google_apis;x86" "emulator"
 
-          # Log: Listar dispositivos disponíveis
-          echo "Lista de dispositivos disponíveis:"
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
+          # Tentar instalar outro sistema
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
 
-          # Criar e configurar o AVD com arquitetura x86
-          echo "Criando o AVD..."
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;x86" --device "pixel_3" --force
+          # Criar e configurar o AVD
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86" --device "pixel_3" --force
 
-          # Verificar AVD criado
-          echo "AVDs disponíveis:"
+          # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
-          ls -l $ANDROID_AVD_HOME
-
-          # Iniciar o emulador
-          nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
-
-          # Aguardar inicialização do emulador
-          adb wait-for-device
-          adb shell input keyevent 82
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
