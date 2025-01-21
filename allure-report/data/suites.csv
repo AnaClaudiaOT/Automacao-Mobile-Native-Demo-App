@@ -1,3 +1,5 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","23250","Login de Usuário","","Tue Jan 21 09:24:33 BRT 2025","passed","Tue Jan 21 09:24:57 BRT 2025","","Teste de Login","",""
-"","35326","Cadastrar usuário","","Tue Jan 21 09:23:58 BRT 2025","passed","Tue Jan 21 09:24:33 BRT 2025","","Teste de Login","",""
+"","35421","Cadastrar usuário","","Tue Jan 21 09:32:15 BRT 2025","passed","Tue Jan 21 09:32:50 BRT 2025","","Teste de Login","",""
+"","23272","Login de Usuário","","Tue Jan 21 09:45:08 BRT 2025","passed","Tue Jan 21 09:45:32 BRT 2025","","Teste de Login","",""
+"","35350","Cadastrar usuário","","Tue Jan 21 09:44:33 BRT 2025","passed","Tue Jan 21 09:45:08 BRT 2025","","Teste de Login","",""
+"","24194","Login de Usuário","","Tue Jan 21 09:32:50 BRT 2025","passed","Tue Jan 21 09:33:14 BRT 2025","","Teste de Login","",""

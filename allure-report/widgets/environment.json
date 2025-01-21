@@ -1,1 +1,1 @@
-[{"values":["Android"],"name":"Plataforma"},{"values":["app"],"name":"Navegador"},{"values":["emulator"],"name":"Device"},{"values":["UiAutomator2"],"name":"AutomationName"},{"values":["tests/app/app-release.apk"],"name":"AppPath"},{"values":["C:UsersAnaDownloads\native-demo-appchromewin64-124.0.6367.207chrome-win64chromedriver.exe"],"name":"ChromedriverExecutable"}]
+[{"values":["Android"],"name":"Plataforma"},{"values":["emulator"],"name":"Device"},{"values":["UiAutomator2"],"name":"AutomationName"},{"values":["tests/app/app-release.apk"],"name":"AppPath"}]
