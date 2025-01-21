@@ -1,6 +1,9 @@
-name: Build and Publish WebdriverIO Native Demo Apps
+name: Build, Test, and Publish WebdriverIO Native Demo Apps
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       releaseType:
@@ -9,184 +12,114 @@ on:
         default: 'patch'
 
 concurrency: 
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true        
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true        
 
 jobs:
   prepare_release:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       new_version: ${{ steps.set_new_version.outputs.new_version }}
     steps:
-      - name: ⬇️ Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 🌲 Setup Git
+      - name: Setup Git
         run: |
           git config --global user.email "bot@webdriver.io"
           git config --global user.name "WebdriverIO Release Bot"        
 
-      - name: 🌲 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: 🧩 Install Dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: 🔄 Increment Version and Build Number
+      - name: Increment Version and Build Number
         id: set_new_version
         run: |
           NEW_VERSION=$(npm version ${{ github.event.inputs.releaseType }} --no-git-tag-version)
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
-          npm run build.versions
 
-      - name: 🌿 Create Pre-Release Branch
+      - name: Create Pre-Release Branch
         run: |
           git checkout -b pre-release
           git add .
           git commit -m "chore: Preparing for release $NEW_VERSION"
           git push origin pre-release
 
-  android_build:
+  android_build_and_test:
     needs: prepare_release
     runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout Pre-Release Branch
+      - name: Checkout Pre-Release Branch
         uses: actions/checkout@v3
         with:
           ref: pre-release
-          
-      - name: 🧳 Cache Gradle Wrapper
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle-wrapper.properties') }}
-        
-      - name: 🧳 Cache Gradle Dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle*', '**/gradle.lockfile') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-cache-
 
-      - name: ☕ Setup Java and Android SDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17.x'
-
-      - name: 🌲 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: 🧩 Install Dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: 🏗️ Build Android Release
-        run: npm run android.release
-
-      - name: 📦 Move 🤖 Android Build
-        run: mv android/app/build/outputs/apk/release/app-release.apk android.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.apk
-
-      - name: 📤 Upload Android App
-        uses: actions/upload-artifact@v3
-        with:
-          name: android.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.apk
-          path: android.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.apk
-
-  ios_build:
-    needs: prepare_release
-    # for https://github.com/facebook/react-native/issues/38294
-    runs-on: macos-13
-    steps:
-      - name: ⬇️ Checkout Pre-Release Branch
-        uses: actions/checkout@v3
-        with:
-          ref: pre-release
-      
-      - name: 🧳 Cache Cocoapods Pods
-        uses: actions/cache@v3
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}-20231231
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
-      - name: 🌲 Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-
-      - name: 🧩 Install Dependencies
-        run: npm ci
-      
-      # This is temp to fix the issue
-      # "error Cannot start server in new window because no terminal app was specified."
-      - name: 🚇 Start Metro Bundler
-        run: npm start -- --reset-cache &
-
-      # Using the 'verbose' xcodebuild command instead of the RN command
-      # to be able to alter the build path
-      - name: 🏗️ Build iOS Release
+      - name: Setup Android SDK
         run: |
-          cd ios
-          pod install
-          xcodebuild \
-            -workspace wdiodemoapp.xcworkspace \
-            -configuration Release \
-            -scheme wdiodemoapp \
-            -sdk iphonesimulator \
-            -derivedDataPath ./build \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO 
-            CODE_SIGNING_ALLOWED=NO
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-11-jdk wget unzip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $HOME/android-sdk
+          mv $HOME/android-sdk/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-      - name: 🛑 Stop Metro Bundler
-        if: always()
-        run: kill $(jobs -p) || true
-
-      - name: 📦 Zip and move iOS Simulator Build
+      - name: Install Allure CLI
         run: |
-          mkdir Payload
-          cp -R ios/build/Build/Products/Release-iphonesimulator/wdiodemoapp.app Payload
-          zip -9 -r ios.simulator.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.zip Payload
-          rm -rf Payload
+          sudo apt-get update -y
+          sudo apt-get install -y allure
 
-      - name: 📤 Upload iOS App
-        uses: actions/upload-artifact@v3
+      - name: Run Tests
+        run: npm run test
+
+      - name: Generate Allure Report
+        run: allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure Report to Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: ios.simulator.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.zip
-          path: ios.simulator.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.zip
-            
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+
   finalize:
-    needs: [prepare_release, android_build, ios_build]
+    needs: [prepare_release, android_build_and_test]
     runs-on: ubuntu-latest
     if: success()
     steps:
-      - name: ⬇️ Checkout Pre-Release Branch
+      - name: Checkout Pre-Release Branch
         uses: actions/checkout@v3
         with:
           ref: pre-release
           fetch-depth: 0 
 
-      - name: 🌲 Setup Git
+      - name: Setup Git
         run: |
           git config --global user.email "bot@webdriver.io"
           git config --global user.name "WebdriverIO Release Bot"  
 
-      - name: 🔖 Tag New Release
+      - name: Tag New Release
         run: |
           git tag -a "${{ needs.prepare_release.outputs.new_version }}" -m "Release ${{ needs.prepare_release.outputs.new_version }}"
           git push origin "${{ needs.prepare_release.outputs.new_version }}"
 
-      - name: 🔀 Merge Pre-Release to Main
+      - name: Merge Pre-Release to Main
         run: |
           git fetch
           git checkout main
@@ -194,60 +127,26 @@ jobs:
           git push origin main
         continue-on-error: true
 
-      - name: 🕵️ Print Diffs if Merge Fails
+      - name: Print Diffs if Merge Fails
         if: failure()
         run: |
           echo "Printing diffs between main and pre-release..."
           git diff main pre-release
           echo "DIFFS_PRINTED=true" >> $GITHUB_ENV
-      
-      - name: 🔥 Delete Pre-Release Branch
+
+      - name: Delete Pre-Release Branch
         run: |
           git push origin --delete pre-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 🚀 Create GitHub Release
-        id: create_release
-        if: env.DIFFS_PRINTED != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ needs.prepare_release.outputs.new_version }}
-          RELEASE_NAME: "Release ${{ needs.prepare_release.outputs.new_version }}"
-          DRAFT: true
-          PRE_RELEASE: false
-        run: |
-          chmod +x .github/scripts/create_release.sh
-          .github/scripts/create_release.sh
-    
-      - name: 📥 Download Android App Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: android.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.apk
-  
-      - name: 📥 Download iOS App Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ios.simulator.wdio.native.app.${{ needs.prepare_release.outputs.new_version }}.zip
-
-      - name: 📤 Upload Artifacts to Release
-        if: env.DIFFS_PRINTED != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          chmod +x .github/scripts/upload_artifacts.sh
-          .github/scripts/upload_artifacts.sh "${{ env.ASSET_URL }}" ${{ needs.prepare_release.outputs.new_version }} ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
-    if: ${{ failure() && (needs.prepare_release.result == 'failure' || needs.android_build.result == 'failure' || needs.ios_build.result == 'failure' || needs.finalize.result == 'failure') }}
-    needs: [prepare_release, android_build, ios_build, finalize]
+    if: ${{ failure() }}
+    needs: [prepare_release, android_build_and_test, finalize]
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        
-      - name: 🔥 Delete Pre-Release Branch
+      - name: Delete Pre-Release Branch
         run: |
           git push origin --delete pre-release
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
