@@ -28,19 +28,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Inicializa o projeto
-      - name: Start Project
-        run: |
-          nohup npm start &
-          sleep 30
-
-      # Executa configurações específicas para Android
-      - name: Run Android Dev
-        run: npm run android.dev
-
-      - name: Run Android Release
-        run: npm run android.release
-
       # Configuração do Android SDK e Emulador
       - name: Set up Android SDK and Emulator
         run: |
@@ -71,11 +58,6 @@ jobs:
           # Aguardar inicialização do emulador
           adb wait-for-device
           adb shell input keyevent 82
-
-      # Inicia o Appium
-      - name: Start Appium
-        run: nohup appium &>/dev/null &
-          sleep 30
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
