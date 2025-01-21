@@ -1,32 +1,53 @@
 import { Config } from 'webdriverio';
-import * as fs from 'fs';
-import * as path from 'path';
 
 export const config: Config = {
+    //
+    // ====================
+    // Runner Configuration
+    // ====================
     runner: 'local',
     port: 4723,
-    path: '/wd/hub',
-    specs: ['./tests/specs/**/*.ts'],
+    path: '/wd/hub', // Caminho base do servidor Appium
+    //
+    // ==================
+    // Specify Test Files
+    // ==================
+    specs: [
+        './tests/specs/**/*.ts' // Ajuste conforme a localização dos arquivos de teste
+    ],
     exclude: [],
-    maxInstances: 1,
+    //
+    // ============
+    // Capabilities
+    // ============
+    maxInstances: 1, // Limitar a execução a 1 dispositivo por vez
     capabilities: [
         {
             platformName: 'Android',
-            browserName: 'app', // Adicionado para consistência
+            browserName: 'app',
+            'goog:chromeOptions': {
+                args: ['--headless', '--disable-gpu'],
+            },
             'appium:deviceName': 'emulator',
             'appium:automationName': 'UiAutomator2',
-            'appium:newCommandTimeout': 300,
+            'appium:newCommandTimeout': 150,
             'appium:autoGrantPermissions': true,
             'appium:autoAcceptAlerts': true,
-            'appium:app': 'tests/app/app-release.apk',
-            'appium:chromedriverExecutable': getChromedriverPath(),
+            'appium:app': 'tests/app/app-release.apk', // Ajuste conforme o caminho do app
+            'appium:chromedriverExecutable': 'C:/Users/Ana/Downloads/native-demo-app/chrome/win64-124.0.6367.207/chrome-win64/chromedriver.exe'
         },
     ],
+    //
+    // ===================
+    // Test Configurations
+    // ===================
     logLevel: 'info',
     bail: 0,
     waitforTimeout: 10000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
+    //
+    // Test runner services
     services: [
         [
             'appium',
@@ -44,83 +65,19 @@ export const config: Config = {
         ui: 'bdd',
         timeout: 60000,
     },
+    //
+    // =====
+    // Hooks
+    // =====
     before: async function (capabilities, specs) {
-        console.log('Inicializando o navegador...');
-        await browser.url('');
+        // Inicialize o browser antes dos testes
+        await browser.url(''); // Navegue para a URL inicial do app
     },
     afterTest: async function (test, context, { error, passed }) {
-        try {
-            const screenshotDir = path.join(__dirname, 'allure-results');
-            if (!fs.existsSync(screenshotDir)) {
-                fs.mkdirSync(screenshotDir, { recursive: true });
-            }
-
-            if (!passed) {
-                console.error(`Teste "${test.title}" falhou.`);
-                const screenshotPath = path.join(
-                    screenshotDir,
-                    `${test.title.replace(/[^a-zA-Z0-9-_]/g, '_')}.png`
-                );
-                await browser.saveScreenshot(screenshotPath);
-                console.log(`Screenshot salva em: ${screenshotPath}`);
-            } else {
-                console.log(`Teste "${test.title}" finalizado com sucesso.`);
-            }
-        } catch (err) {
-            console.error(`Erro ao processar o teste "${test.title}": ${err.message}`);
+        if (!passed) {
+            await browser.takeScreenshot();
         }
     },
-    onPrepare: function (config, capabilities) {
-        const environmentDir = path.join(__dirname, 'allure-results');
-        if (!fs.existsSync(environmentDir)) {
-            fs.mkdirSync(environmentDir, { recursive: true });
-        }
-
-        // Garantir consistência nas configurações
-        const platformName = capabilities[0].platformName || 'Desconhecida';
-        const browserName = capabilities[0].browserName || 'app';
-        const deviceName = capabilities[0]['appium:deviceName'] || 'Desconhecido';
-        const automationName = capabilities[0]['appium:automationName'] || 'Não especificado';
-        const appPath = capabilities[0]['appium:app'] || 'Não especificado';
-
-        const environmentContent = `
-    Plataforma=${platformName}
-    Navegador=${browserName}
-    Device=${deviceName}
-    AutomationName=${automationName}
-    AppPath=${appPath}
-    `.trim();
-
-        const environmentFilePath = path.join(environmentDir, 'environment.properties');
-
-        try {
-            fs.writeFileSync(environmentFilePath, environmentContent, { encoding: 'utf-8' });
-            console.log(`Arquivo environment.properties gerado em ${environmentFilePath}`);
-        } catch (error) {
-            console.error('Erro ao criar o arquivo environment.properties:', error);
-        }
-    },
-    ,
 };
-
-/**
- * Função para obter o caminho correto do chromedriver.
- */
-function getChromedriverPath(): string {
-    const localPath = path.join(__dirname, 'chrome', 'win64-124.0.6367.207', 'chrome-win64', 'chromedriver.exe');
-    const githubActionsPath = '/usr/local/lib/chromedriver';
-
-    if (fs.existsSync(localPath)) {
-        console.log(`Chromedriver encontrado no caminho local: ${localPath}`);
-        return localPath;
-    }
-
-    if (fs.existsSync(githubActionsPath)) {
-        console.log(`Chromedriver encontrado no GitHub Actions: ${githubActionsPath}`);
-        return githubActionsPath;
-    }
-
-    throw new Error('Chromedriver não encontrado. Certifique-se de que ele está instalado e no PATH.');
-}
 
 export default config;
