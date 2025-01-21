@@ -78,6 +78,11 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
+        # Executar emulador
+      - name: Run Emulator
+        run: emulador -avd test
+
+
         # Executar adb device
       - name: Run adb devices
         run: adb devices
