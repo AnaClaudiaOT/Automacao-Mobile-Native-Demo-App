@@ -56,6 +56,12 @@ jobs:
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
+      - name: Verify Android SDK Installation
+        run: |
+          echo "Verificando instalação do Android SDK..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list || { echo "Erro ao listar SDKs."; exit 1; }
+          adb version || { echo "ADB não está configurado corretamente."; exit 1; }
+
       # Instalação do Allure CLI
       - name: Install Allure CLI
         run: |
@@ -63,6 +69,10 @@ jobs:
           sudo apt-get install -y openjdk-11-jdk
           wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
           echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
+
+      - name: Verify Allure CLI
+        run: allure --version
+
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
