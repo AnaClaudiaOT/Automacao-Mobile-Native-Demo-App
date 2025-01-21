@@ -46,17 +46,18 @@ jobs:
           # Ajustar estrutura do Command Line Tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # Atualizar SDK Manager
+          # Atualizar SDK Manager e listar pacotes disponíveis
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
 
           # Aceitar licenças e instalar pacotes necessários
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "system-images;android-31;google_apis;arm64-v8a" "emulator"
 
           # Criar e configurar o AVD
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --force
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --force --device "pixel_3"
 
-          # Verifique se o AVD foi criado
+          # Verificar se o AVD foi criado
           if [ ! -f "$HOME/.android/avd/test.ini" ]; then
             echo "Erro: AVD 'test' não foi criado."
             exit 1
