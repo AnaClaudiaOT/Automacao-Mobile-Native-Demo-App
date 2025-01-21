@@ -30,7 +30,9 @@ jobs:
 
       # Inicializa o projeto
       - name: Start Project
-        run: npm start
+        run: |
+          nohup npm start &
+          sleep 30
 
       # Executa configurações específicas para Android
       - name: Run Android Dev
@@ -73,6 +75,7 @@ jobs:
       # Inicia o Appium
       - name: Start Appium
         run: nohup appium &>/dev/null &
+          sleep 30
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
