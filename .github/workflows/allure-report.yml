@@ -78,6 +78,10 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
+        # Executar adb device
+      - name: Run adb devices
+        run: adb devices
+
       # Instalação do Allure CLI
       - name: Install Allure CLI
         run: |
@@ -106,7 +110,7 @@ jobs:
         with:
           name: allure-report
           path: allure-report
-          
+
   deploy-report:
     name: Deploy Allure Report to GitHub Pages
     needs: run-tests
