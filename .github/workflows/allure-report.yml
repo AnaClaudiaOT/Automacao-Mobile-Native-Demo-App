@@ -47,14 +47,26 @@ jobs:
           # Aceitar licenças
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-          # Tentar instalar outro sistema
+          # Instalar pacotes necessários
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
+
+          # Adicionar platform-tools ao PATH
+          export PATH=$ANDROID_HOME/platform-tools:$PATH
+          echo "Verificando adb..."
+          adb version || { echo "ADB não encontrado no PATH. Verifique a instalação do platform-tools."; exit 1; }
 
           # Criar e configurar o AVD
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86" --device "pixel_3" --force
 
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+
+      # Inicia o emulador
+      - name: Start Emulator
+        run: |
+          nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
+          sleep 30
+          adb wait-for-device
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
@@ -63,6 +75,8 @@ jobs:
           sudo apt-get install -y openjdk-11-jdk
           wget -qO- https://github.com/allure-framework/allure2/releases/download/2.22.3/allure-2.22.3.tgz | tar -xz -C /opt/
           echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
+          export PATH=$PATH:/opt/allure-2.22.3/bin
+          allure --version || { echo "Allure não instalado corretamente."; exit 1; }
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
