@@ -22,7 +22,8 @@ exports.config = {
         'appium:autoGrantPermissions': true,
         'appium:autoAcceptAlerts': true,
         'appium:app': 'tests/app/app-release.apk',
-        'appium:chromedriverExecutable': 'C:/Users/Ana/Downloads/native-demo-app/chrome/win64-124.0.6367.207/chrome-win64/chromedriver.exe'
+        'appium:adbExecTimeout': 20000,
+        // 'appium:chromedriverExecutable': 'C:/Users/Ana/Downloads/native-demo-app/chrome/win64-124.0.6367.207/chrome-win64/chromedriver.exe'
     }],
     logLevel: 'info',
     bail: 0,
