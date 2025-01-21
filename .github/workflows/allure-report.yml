@@ -54,11 +54,18 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "system-images;android-31;google_apis;arm64-v8a" "emulator"
 
+          # Log: Listar dispositivos disponíveis
+          echo "Lista de dispositivos disponíveis para criação do AVD:"
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
+
           # Criar e configurar o AVD
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --force --device "pixel_3"
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --device "pixel_3" --force
 
           # Verificar se o AVD foi criado
-          if [ ! -f "$HOME/.android/avd/test.ini" ]; then
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+          ls -l $ANDROID_AVD_HOME
+
+          if [ ! -f "$ANDROID_AVD_HOME/test.ini" ]; then
             echo "Erro: AVD 'test' não foi criado."
             exit 1
           fi
