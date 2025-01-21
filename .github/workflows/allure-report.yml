@@ -22,7 +22,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: "20.x"
+
+      # Configuração do Java
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       # Instala dependências
       - name: Install Dependencies
@@ -65,14 +72,10 @@ jobs:
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
-      # Exportar novamente o ANDROID_HOME e PATH para o ambiente global
-      - name: Export ANDROID_HOME and PATH
-        run: |
-          echo "Exportando ANDROID_HOME e PATH para o ambiente global..."
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-          source $GITHUB_ENV
-          adb version || { echo "Erro: ADB ainda não está acessível."; exit 1; }
+          # Exportar variáveis globalmente
+          echo "Exportando variáveis para o ambiente global..."
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
