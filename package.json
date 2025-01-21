@@ -3,9 +3,9 @@
   "version": "1.0.8",
   "private": true,
   "scripts": {
-    "android.clean": "cd android && ./gradlew clean && cd .. ",
+    "android.clean": "cd android && gradlew.bat clean && cd ..",
     "android.dev": "npm run android.clean && npm run build.version.android && react-native run-android",
-    "android.release": "cd android && ./gradlew clean && ./gradlew assembleRelease",
+    "android.release": "cd android && gradlew.bat clean && gradlew.bat assembleRelease",
     "ios.dev": "npm run ios.pods && npm run build.version.ios && react-native run-ios",
     "ios.pods": "cd ios && pod install && cd ..",
     "ios.release.sim.build": "npm run ios.pods && react-native run-ios --mode=Release",
@@ -15,7 +15,10 @@
     "build.version.android": "react-native-version -A -b --target android",
     "build.version.ios": "react-native-version -A -b -L --target ios",
     "build.versions": "react-native-version -A -L",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test": "npx wdio run wdio.conf.js",
+    "allure:generate": "allure generate allure-results --clean",
+    "allure:open": "allure open allure-report"
   },
   "dependencies": {
     "@react-native-picker/picker": "^2.6.1",
@@ -56,15 +59,28 @@
     "@types/react": "^18.2.6",
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.0.0",
+    "@wdio/allure-reporter": "^9.5.0",
+    "@wdio/appium-service": "^9.5.7",
+    "@wdio/cli": "^9.5.7",
+    "@wdio/local-runner": "^9.5.7",
+    "@wdio/mocha-framework": "^9.5.0",
+    "@wdio/spec-reporter": "^9.5.0",
+    "@wdio/visual-service": "^6.3.0",
+    "appium": "^2.15.0",
+    "appium-uiautomator2-driver": "^3.9.9",
     "babel-jest": "^29.6.3",
+    "chai": "^5.1.2",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
+    "mocha": "^11.0.1",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "2.8.8",
     "react-native-version": "^4.0.0",
     "react-test-renderer": "18.2.0",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "wdio-wait-for": "^3.0.11",
+    "webdriverio": "^9.5.7"
   },
   "engines": {
     "node": ">=18"

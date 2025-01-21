@@ -1,0 +1,68 @@
+name: Run Tests and Publish Allure Report
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-tests:
+    name: Run Tests and Generate Allure Report
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout do repositório
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Configuração do Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Instala dependências
+      - name: Install Dependencies
+        run: npm ci
+
+      # Executa os testes e gera os resultados do Allure
+      - name: Run Tests
+        run: npm run test
+
+      # Gera o relatório Allure
+      - name: Generate Allure Report
+        run: |
+          npm run allure:generate
+
+      # Faz upload do relatório gerado para a workspace
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-report
+          path: allure-report
+
+  deploy-report:
+    name: Deploy Allure Report to GitHub Pages
+    needs: run-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout do repositório
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Faz download do relatório gerado
+      - name: Download Allure Report
+        uses: actions/download-artifact@v3
+        with:
+          name: allure-report
+
+      # Publica o relatório no GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
