@@ -1,9 +1,9 @@
 name: Build, Test, and Publish WebdriverIO Native Demo Apps
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       releaseType:
