@@ -50,10 +50,14 @@ jobs:
           # Instalar pacotes necessários
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
 
-          # Adicionar platform-tools ao PATH e verificar
+          # Validar onde o adb está instalado
+          echo "Procurando o adb instalado..."
+          find $ANDROID_HOME -name adb -type f || { echo "Erro: adb não foi encontrado. Verifique a instalação do platform-tools."; exit 1; }
+
+          # Adicionar o adb ao PATH
           export PATH=$ANDROID_HOME/platform-tools:$PATH
           echo "Verificando adb..."
-          adb version || { echo "ADB não encontrado no PATH. Verifique a instalação do platform-tools."; exit 1; }
+          $ANDROID_HOME/platform-tools/adb version || { echo "Erro: ADB não está acessível. Verifique a instalação do platform-tools."; exit 1; }
 
           # Criar e configurar o AVD
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86" --device "pixel_3" --force
@@ -61,7 +65,7 @@ jobs:
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
-      # Exportar novamente o ANDROID_HOME e PATH antes de executar os testes
+      # Exportar novamente o ANDROID_HOME e PATH para o ambiente global
       - name: Export ANDROID_HOME and PATH
         run: |
           echo "Exportando ANDROID_HOME e PATH para o ambiente global..."
