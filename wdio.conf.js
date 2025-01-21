@@ -16,7 +16,7 @@ exports.config = {
         'goog:chromeOptions': {
             args: ['--headless', '--disable-gpu']
         },
-        'appium:deviceName': 'emulator',
+        'appium:deviceName': 'pixel_3 (Google)',
         'appium:automationName': 'UiAutomator2',
         'appium:newCommandTimeout': 150,
         'appium:autoGrantPermissions': true,
