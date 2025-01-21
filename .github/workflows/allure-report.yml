@@ -43,7 +43,7 @@ jobs:
 
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --verbose
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;arm64-v8a" "emulator"
 
           echo "Procurando o adb instalado..."
           find $ANDROID_HOME -name adb -type f || { echo "Erro: adb não foi encontrado. Verifique a instalação do platform-tools."; exit 1; }
@@ -52,7 +52,7 @@ jobs:
           echo "Verificando adb..."
           $ANDROID_HOME/platform-tools/adb version || { echo "Erro: ADB não está acessível. Verifique a instalação do platform-tools."; exit 1; }
 
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86" --device "pixel_3" --force
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;arm64-v8a" --device "pixel_3" --force
 
           echo "Exportando variáveis para o ambiente global..."
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
@@ -64,17 +64,33 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y libpulse0
 
+      - name: Start Metro Bundler
+        run: |
+          nohup npm start -- --reset-cache &
+          sleep 10
+
+      - name: Build Android Release
+        run: npm run android.release
+
+      - name: Start Appium Server
+        run: |
+          nohup appium --port 4723 &
+          sleep 10
+
       - name: Run Emulator
         run: |
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect &
           echo "Esperando o emulador inicializar..."
-          sleep 60
-          adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
-
-      - name: Wait for Emulator
-        run: |
           adb wait-for-device
-          adb shell getprop sys.boot_completed | grep -m 1 '1'
+          for i in {1..10}; do
+            if adb shell getprop sys.boot_completed | grep -m 1 '1'; then
+              echo "Emulador inicializado com sucesso!"
+              break
+            fi
+            echo "Esperando o emulador inicializar... Tentativa $i"
+            sleep 30
+          done
+          adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
 
       - name: Install Allure CLI
         run: |
@@ -101,23 +117,3 @@ jobs:
         with:
           name: allure-report
           path: allure-report
-
-  deploy-report:
-    name: Deploy Allure Report to GitHub Pages
-    needs: run-tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Download Allure Report
-        uses: actions/download-artifact@v3
-        with:
-          name: allure-report
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
