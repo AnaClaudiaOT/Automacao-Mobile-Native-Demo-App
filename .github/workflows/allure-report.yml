@@ -50,7 +50,7 @@ jobs:
           # Instalar pacotes necessários
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --verbose "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;x86" "emulator"
 
-          # Adicionar platform-tools ao PATH
+          # Adicionar platform-tools ao PATH e verificar
           export PATH=$ANDROID_HOME/platform-tools:$PATH
           echo "Verificando adb..."
           adb version || { echo "ADB não encontrado no PATH. Verifique a instalação do platform-tools."; exit 1; }
@@ -60,6 +60,15 @@ jobs:
 
           # Listar os AVDs criados
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+
+      # Exportar novamente o ANDROID_HOME e PATH antes de executar os testes
+      - name: Export ANDROID_HOME and PATH
+        run: |
+          echo "Exportando ANDROID_HOME e PATH para o ambiente global..."
+          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+          source $GITHUB_ENV
+          adb version || { echo "Erro: ADB ainda não está acessível."; exit 1; }
 
       # Instalação do Allure CLI
       - name: Install Allure CLI
