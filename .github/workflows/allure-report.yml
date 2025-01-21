@@ -86,13 +86,6 @@ jobs:
           echo 'export PATH=$PATH:/opt/allure-2.22.3/bin' >> $GITHUB_ENV
 
       # Executa os testes e gera os resultados do Allure
-      - name: Start Android Emulator
-        run: |
-          nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -memory 2048 &
-          echo "Esperando o emulador inicializar..."
-          sleep 60
-          adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
-
       - name: Run Tests
         run: npx wdio run wdio.conf.js --spec tests/specs/test.spec.js
 
