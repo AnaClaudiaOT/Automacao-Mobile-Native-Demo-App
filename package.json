@@ -16,7 +16,7 @@
     "build.version.ios": "react-native-version -A -b -L --target ios",
     "build.versions": "react-native-version -A -L",
     "postinstall": "patch-package",
-    "test": "npx wdio run wdio.conf.js",
+    "test": "npx wdio run wdio.conf.js --spec tests/specs/test.spec.js",
     "allure:generate": "allure generate allure-results --clean",
     "allure:open": "allure open allure-report"
   },
