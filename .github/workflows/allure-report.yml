@@ -80,7 +80,7 @@ jobs:
 
         # Executar emulador
       - name: Run Emulator
-        run: emulador -avd test
+        run: emulator -avd test
 
 
         # Executar adb device
