@@ -1,3 +1,4 @@
+# Nome do workflow
 name: Run Tests and Publish Allure Report
 
 on:
@@ -32,6 +33,8 @@ jobs:
       - name: Set up Android SDK and Emulator for ARM
         run: |
           export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          export ANDROID_SDK_HOME=$ANDROID_HOME
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
 
           # Criar diretório para o SDK
@@ -56,6 +59,17 @@ jobs:
 
           # Criar e configurar o emulador ARM
           echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;arm64-v8a" --force
+
+          # Verificar se o AVD foi criado corretamente
+          if [ ! -f "$ANDROID_AVD_HOME/test.ini" ]; then
+            echo "Erro: AVD 'test' não foi criado. Verifique as configurações."
+            exit 1
+          fi
+
+          # Listar os AVDs disponíveis
+          $ANDROID_HOME/emulator/emulator -list-avds
+
+          # Iniciar o emulador
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
 
           # Aguardar inicialização do emulador
