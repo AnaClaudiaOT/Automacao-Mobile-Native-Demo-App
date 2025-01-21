@@ -1,1 +1,2 @@
 *.dll filter=lfs diff=lfs merge=lfs -text
+chrome/win64-124.0.6367.207/chrome-win64/chrome.dll filter=lfs diff=lfs merge=lfs -text
