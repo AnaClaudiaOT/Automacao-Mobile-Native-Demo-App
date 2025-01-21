@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       # Instala dependências
       - name: Install Dependencies
@@ -33,10 +33,10 @@ jobs:
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          
+
           # Criar diretório para o SDK
           mkdir -p $ANDROID_HOME/cmdline-tools
-          
+
           # Atualizar pacotes e instalar dependências
           sudo apt-get update -y
           sudo apt-get install -y openjdk-11-jdk wget unzip
@@ -44,29 +44,35 @@ jobs:
           # Baixar e descompactar o Command Line Tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-          
+
           # Ajustar estrutura para o cmdline-tools funcionar
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-          
+
           # Aceitar licenças e instalar ferramentas necessárias
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
+          # Adicionar o adb ao PATH
+          export PATH=$PATH:$ANDROID_HOME/platform-tools
 
-      # Instalação do Allure CLI
+      # Instalação do Allure
       - name: Install Allure CLI
         run: |
-          sudo apt-get update -y
           sudo apt-get install -y allure
 
       # Executa os testes e gera os resultados do Allure
       - name: Run Tests
-        run: npm run test
+        run: npx wdio run wdio.conf.js --spec tests/specs/test.spec.js
 
       # Gera o relatório Allure
       - name: Generate Allure Report
         run: |
-          npm run allure:generate
+          if [ -d "allure-results" ]; then
+            allure generate allure-results --clean
+          else
+            echo "Diretório allure-results não encontrado. Certifique-se de que os resultados dos testes foram salvos."
+            exit 1
+          fi
 
       # Faz upload do relatório gerado para a workspace
       - name: Upload Allure Report
