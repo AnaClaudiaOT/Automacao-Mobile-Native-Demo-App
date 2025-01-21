@@ -28,37 +28,39 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Configuração do Android SDK
-      - name: Set up Android SDK
+      # Configuração do Android SDK e Emulador
+      - name: Set up Android SDK and Emulator
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
 
           # Criar diretório para o SDK
           mkdir -p $ANDROID_HOME/cmdline-tools
 
-          # Atualizar pacotes e instalar dependências
+          # Instalar dependências e Command Line Tools
           sudo apt-get update -y
-          sudo apt-get install -y openjdk-11-jdk wget unzip
+          sudo apt-get install -y openjdk-11-jdk wget unzip libvirt-dev qemu-kvm
 
           # Baixar e descompactar o Command Line Tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
 
-          # Ajustar estrutura para o cmdline-tools funcionar
+          # Ajustar estrutura do Command Line Tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # Aceitar licenças e instalar ferramentas necessárias
+          # Aceitar licenças e instalar pacotes necessários
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "system-images;android-30;google_apis;armeabi-v7a"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3" "system-images;android-29;google_apis;x86_64"
 
-          # Criar e iniciar o emulador Android baseado em ARM
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;armeabi-v7a" --force
-          $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window &
+          # Criar e configurar o emulador
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-29;google_apis;x86_64" --force
+          nohup $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-load -no-window -gpu swiftshader_indirect -memory 2048 &
+
+          # Aguardar inicialização do emulador
           adb wait-for-device
           adb shell input keyevent 82
 
-      # Instalação do Allure
+      # Instalação do Allure CLI
       - name: Install Allure CLI
         run: |
           sudo apt-get update -y
