@@ -86,7 +86,7 @@ jobs:
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -no-accel &> emulator.log &
           echo "Esperando o emulador inicializar..."
           adb wait-for-device
-          for i in {1..2}; do
+          for i in {1..15}; do
             if adb shell getprop sys.boot_completed | grep -m 1 '1'; then
               echo "Emulador inicializado com sucesso!"
               break
@@ -94,8 +94,16 @@ jobs:
             echo "Esperando o emulador inicializar... Tentativa $i"
             sleep 20
           done
-          adb devices || { echo "Erro: Nenhum dispositivo detectado pelo adb."; exit 1; }
-        continue-on-error: true
+
+          # Verificação final do estado do emulador
+          if ! adb shell getprop sys.boot_completed | grep -m 1 '1'; then
+            echo "Erro: O emulador não inicializou dentro do tempo esperado."
+            cat emulator.log  # Exibir logs do emulador para debug
+            exit 1
+          fi
+
+          echo "Emulador está pronto!"
+          adb devices
 
       - name: Check Emulator Logs
         if: failure()
