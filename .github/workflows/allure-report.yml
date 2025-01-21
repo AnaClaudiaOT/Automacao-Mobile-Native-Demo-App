@@ -78,10 +78,14 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Install Missing Libraries for Emulator
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libpulse0
+
         # Executar emulador
       - name: Run Emulator
         run: emulator -avd test
-
 
         # Executar adb device
       - name: Run adb devices
