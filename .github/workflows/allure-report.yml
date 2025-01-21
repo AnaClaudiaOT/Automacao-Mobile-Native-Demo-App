@@ -37,19 +37,15 @@ jobs:
           # Criar diretório para o SDK
           mkdir -p $ANDROID_HOME/cmdline-tools
 
-          # Atualizar SDK Manager
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
-
-          # Instalar dependências e Command Line Tools
-          sudo apt-get update -y
-          sudo apt-get install -y openjdk-11-jdk wget unzip libvirt-dev qemu-kvm
-
           # Baixar e descompactar o Command Line Tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
 
           # Ajustar estrutura do Command Line Tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+
+          # Atualizar SDK Manager
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
 
           # Aceitar licenças e instalar pacotes necessários
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
