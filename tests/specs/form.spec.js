@@ -5,7 +5,7 @@ describe("Preenchimento de Formulário", () => {
   it("Deve preencher o formulário e validar as ações", async () => {
     beforeEach(async () => {
       await browser.reloadSession() // Reinicia a sessão do navegador para garantir um estado limpo
-      await browser.pause(10000) // Aguarda o aplicativo carregar
+      await browser.pause(20000) // Aguarda o aplicativo carregar
     })
 
     // Digitar um texto no campo de input

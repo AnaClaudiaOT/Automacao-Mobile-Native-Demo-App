@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//android.widget.TextView[@text=\"Or swipe vertical to find what I'm hiding.\"]"
+}

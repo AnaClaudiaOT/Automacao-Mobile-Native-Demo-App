@@ -1,1 +1,0 @@
-Iniciando o teste: Deve navegar para a página Login e validar a mensagem

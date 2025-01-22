@@ -1,0 +1,1 @@
+Teste concluído com sucesso: Deve clicar no elemento Swipe e validar a mensagem exibida

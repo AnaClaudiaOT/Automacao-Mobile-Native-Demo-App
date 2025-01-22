@@ -4,7 +4,7 @@ import { browser } from "@wdio/globals"
 describe("Teste de Login", () => {
   beforeEach(async () => {
     await browser.reloadSession() // Reinicia a sessão do navegador para garantir um estado limpo
-    await browser.pause(10000) // Aguarda o aplicativo carregar
+    await browser.pause(20000) // Aguarda o aplicativo carregar
   })
 
   it("Cadastrar usuário", async () => {

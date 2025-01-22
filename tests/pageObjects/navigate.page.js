@@ -22,16 +22,14 @@ class NavigatePage {
       '//android.widget.TextView[@text="When the device has Touch/FaceID (iOS) or FingerPrint enabled a biometrics button will be shown to use and test the login."]'
     )
   }
-
-  // Seletor para o botão Webview
-  get webviewOption() {
-    return $('//android.widget.TextView[@text="Webview"]')
+  // Seletor para o botão Swipe
+  get swipeElement() {
+    return $('//android.widget.TextView[@text="Swipe"]')
   }
-
-  // Seletor para a mensagem Webview
-  get webviewMessage() {
+  // Seletor para a mensagem Swipe
+  get hiddenMessageElement() {
     return $(
-      '//android.view.View[@text="Next-gen browser and mobile automation test framework for Node.js"]'
+      '//android.widget.TextView[@text="Or swipe vertical to find what I\'m hiding."]'
     )
   }
 
@@ -54,15 +52,13 @@ class NavigatePage {
   async getLoginMessageText() {
     return await this.loginMessage.getText()
   }
-
-  // Método para navegar para a página Webview
-  async navigateToWebview() {
-    await this.webviewOption.click()
+  // Método para navegar para a página Swipe
+  async clickSwipeElement() {
+    await this.swipeElement.click()
   }
-
-  // Método para obter a mensagem da página Webview
-  async getWebviewMessageText() {
-    return await this.webviewMessage.getText()
+  // Método para obter a mensagem da página Swipe
+  async getHiddenMessageText() {
+    return await this.hiddenMessageElement.getText()
   }
 }
 
