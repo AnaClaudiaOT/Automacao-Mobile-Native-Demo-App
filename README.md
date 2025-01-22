@@ -139,10 +139,10 @@ Requisitos e ferramentas necessárias para configurar o ambiente de desenvolvime
 
 ### Testes Automatizados com WebdriverIO
 
-- **Login:** Validações de credenciais e autenticação biométrica.
-- **WebView:** Interações com o conteúdo em uma WebView.
+- **Login:** Validações de login, Cadastro e mensagens de erro
 - **Formulários:** Interações com campos de texto, switches e dropdowns.
-- **Gestos:** Testes de swipe e drag-and-drop.
+- **Navegação:** Navegação entre telas e validações de texto
+- **Drag and Drop:** Resolução de um quebra-cabeça arrastando peças para a posição correta
 
 ### Execução dos Testes
 
