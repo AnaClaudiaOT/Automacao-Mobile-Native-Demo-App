@@ -82,29 +82,28 @@ jobs:
 
       - name: Run Emulator
         run: |
-          echo "Listando arquivos na pasta $ANDROID_HOME/emulator:"
-          ls $ANDROID_HOME/emulator/  # Lista os arquivos no diretório do emulador
-          echo "Listando arquivos no caminho do adb:"
-          ls $ANDROID_HOME/platform-tools/  # Lista os arquivos no diretório do adb
+          echo "Listando arquivos na pasta do emulador:"
+          ls /home/runner/android-sdk/emulator/  # Lista os arquivos no diretório do emulador
 
-          ls $ANDROID_HOME/emulator/emulator  # Lista os arquivos no diretório do emulador
           echo "Listando arquivos no caminho do adb:"
-          ls $ANDROID_HOME/platform-tools/  # Lista os arquivos no diretório do adb
+          ls /home/runner/android-sdk/platform-tools/  # Lista os arquivos no diretório do adb
 
-          # Inicia o emulador
-          nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -no-accel &> emulator.log &
+          # Inicia o emulador com o caminho absoluto
+          nohup /home/runner/android-sdk/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -no-accel &> emulator.log &
           echo "Esperando o emulador inicializar..."
-          $ANDROID_HOME/platform-tools/adb wait-for-device  # Utiliza o caminho correto do adb
+
+          # Aguarda o dispositivo com o caminho absoluto do adb
+          /home/runner/android-sdk/platform-tools/adb wait-for-device
 
           # Verificação final do estado do emulador
-          if ! $ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed | grep -m 1 '1'; then
+          if ! /home/runner/android-sdk/platform-tools/adb shell getprop sys.boot_completed | grep -m 1 '1'; then
             echo "Erro: O emulador não inicializou dentro do tempo esperado."
             cat emulator.log  # Exibir logs do emulador para debug
             exit 1
           fi
 
           echo "Emulador está pronto!"
-          $ANDROID_HOME/platform-tools/adb devices  # Lista os dispositivos conectados
+          /home/runner/android-sdk/platform-tools/adb devices  # Lista os dispositivos conectados
 
       - name: Check Emulator Logs
         if: failure()
