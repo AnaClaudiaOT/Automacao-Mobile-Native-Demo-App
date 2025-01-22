@@ -171,8 +171,10 @@ Requisitos e ferramentas necessárias para configurar o ambiente de desenvolvime
    *Abre o relatório gerado no navegador para visualização detalhada.*
 
 Exemplo de Relatório gerado após execução dos testes:
-![image](https://github.com/user-attachments/assets/934cfb0b-4dc8-4ed5-95d1-128e3f77de18)
 
-![image](https://github.com/user-attachments/assets/c7b53e0d-612a-4525-9924-2d566290d6ab)
+![image](https://github.com/user-attachments/assets/23a31e85-3afa-4b46-ac8d-ffe27d7768ca)
+
+![image](https://github.com/user-attachments/assets/e6e19951-47dc-40bc-b2f4-10acd8c8c78f)
+
 
 
