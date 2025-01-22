@@ -1,63 +1,105 @@
 class LoginPage {
   // Define o seletor para o botão de login
+  get loginOption() {
+    return $('//android.widget.TextView[@text="Login"]')
+  }
+
   get loginButton() {
-    return $('//android.widget.TextView[@text="Login"]');
+    return $('//android.widget.TextView[@text="LOGIN"]')
   }
 
   // Define o seletor para o botão de sign up
   get signUpButton() {
-    return $('//android.widget.TextView[@text="Sign up"]');
+    return $('//android.widget.TextView[@text="Sign up"]')
   }
 
   // Seletor do campo de e-mail Sign Up
   get emailSignUpInput() {
-    return $('//android.widget.EditText[@content-desc="input-email"]');
+    return $('//android.widget.EditText[@content-desc="input-email"]')
   }
 
   // Seletor do campo de password
   get passwordInput() {
-    return $('//android.widget.EditText[@content-desc="input-password"]');
+    return $('//android.widget.EditText[@content-desc="input-password"]')
   }
 
   // Seletor do campo de Confirm Password
   get passwordConfirmInput() {
-    return $('//android.widget.EditText[@content-desc="input-repeat-password"]');
+    return $('//android.widget.EditText[@content-desc="input-repeat-password"]')
   }
 
-  // Método para clicar no botão de login
-  async clickLoginButton() {
-    const isButtonPresent = await this.loginButton.isExisting();
-    if (!isButtonPresent) {
-      throw new Error('O botão de login não está presente no DOM.');
-    }
-    await this.loginButton.click();
+  // Seletor do campo de Mensagem de Login
+  get loginMessage() {
+    return $('//android.widget.TextView[@resource-id="android:id/message"]')
   }
-  ///////////////////////////////////////////////
-  // Método para clicar no botão de sign up
-  ///////////////////////////////////////////////
+
+  // Seletor da mensagem de erro de email
+  get errorMessage() {
+    return $(
+      '//android.widget.TextView[@text="Please enter a valid email address"]'
+    )
+  }
+
+  // Seletor da mensagem de erro de senha
+  get passwordErrorMessage() {
+    return $(
+      '//android.widget.TextView[@text="Please enter at least 8 characters"]'
+    )
+  }
+
+  // Busca mensagem de login
+  async getLoginMessageText() {
+    return await this.loginMessage.getText()
+  }
+
+  // Verifica que mensagem de login está sendo exibida
+  async isLoginMessageDisplayed() {
+    return await this.loginMessage.isDisplayed()
+  }
+
+  // Busca mensagem de erro de email
+  async getErrorMessageText() {
+    return await this.errorMessage.getText()
+  }
+
+  // Busca mensagem de erro de senha
+  async getPasswordErrorMessageText() {
+    return await this.passwordErrorMessage.getText()
+  }
+
+  // Método para clicar na opção de login
+  async clickLoginOption() {
+    await this.loginOption.waitForExist({ timeout: 10000 })
+    await this.loginOption.click()
+  }
+  // Método para clicar no botão login
+  async clickLoginButton() {
+    await this.loginButton.waitForExist({ timeout: 10000 })
+    await this.loginButton.click()
+  }
+  // Método para clicar no botão sign up
   async clickSignUpButton() {
-    const isButtonPresent = await this.signUpButton.isExisting();
-    if (!isButtonPresent) {
-      throw new Error('O botão de sign up não está presente no DOM.');
-    }
-    await this.signUpButton.click();
+    await this.signUpButton.waitForExist({ timeout: 10000 })
+    await this.signUpButton.click()
   }
 
   // Método para digitar o e-mail
   async enterEmail(email) {
-    // Corrigido para usar o seletor correto
-    await this.emailSignUpInput.setValue(email);
+    await this.emailSignUpInput.waitForExist({ timeout: 10000 })
+    await this.emailSignUpInput.setValue(email)
   }
 
   // Método para digitar o password
   async enterPassword(password) {
-    await this.passwordInput.setValue(password);
+    await this.passwordInput.waitForExist({ timeout: 10000 })
+    await this.passwordInput.setValue(password)
   }
 
   // Método para confirmar o password
   async confirmPassword(password) {
-    await this.passwordConfirmInput.setValue(password);
+    await this.passwordConfirmInput.waitForExist({ timeout: 10000 })
+    await this.passwordConfirmInput.setValue(password)
   }
 }
 
-export default new LoginPage();
+export default new LoginPage()

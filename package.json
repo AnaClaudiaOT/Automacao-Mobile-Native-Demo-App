@@ -8,6 +8,7 @@
     "android.release": "cd android && gradlew.bat clean && gradlew.bat assembleRelease",
     "android.release.git": "cd android && ./gradlew clean && ./gradlew assembleRelease",
     "android.release.ci": "cd android && ./gradlew clean && ./gradlew assembleRelease --no-daemon",
+    "test.mobile": "npx wdio run wdio.conf.js",
     "ios.dev": "npm run ios.pods && npm run build.version.ios && react-native run-ios",
     "ios.pods": "cd ios && pod install && cd ..",
     "ios.release.sim.build": "npm run ios.pods && react-native run-ios --mode=Release",

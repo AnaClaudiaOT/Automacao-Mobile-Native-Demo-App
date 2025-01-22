@@ -1,0 +1,1 @@
+Iniciando o teste: Deve arrastar e soltar todos os elementos e clicar no botão Retry

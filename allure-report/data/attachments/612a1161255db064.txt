@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//android.widget.TextView[@text=\"You made it, click retry if you want to try it again.\"]"
+}

@@ -1,0 +1,1 @@
+Iniciando o teste: Validar mensagem de erro - Senha com menos de 8 caracteres

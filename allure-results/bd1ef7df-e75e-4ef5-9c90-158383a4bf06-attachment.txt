@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//android.widget.CheckedTextView[@text=\"Appium is awesome\"]"
+}

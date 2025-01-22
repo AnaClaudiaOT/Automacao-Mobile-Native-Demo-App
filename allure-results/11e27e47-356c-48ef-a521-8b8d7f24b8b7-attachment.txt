@@ -1,0 +1,1 @@
+Teste concluído com sucesso: Deve arrastar e soltar todos os elementos

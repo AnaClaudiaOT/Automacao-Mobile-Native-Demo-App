@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//android.view.ViewGroup[@content-desc=\"drop-r1\"]/android.view.ViewGroup"
+}

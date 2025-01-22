@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//android.view.ViewGroup[@content-desc=\"drag-r3\"]/android.widget.ImageView"
+}
