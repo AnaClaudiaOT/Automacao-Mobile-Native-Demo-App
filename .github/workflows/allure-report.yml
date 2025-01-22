@@ -82,6 +82,9 @@ jobs:
 
       - name: Run Emulator
         run: |
+          echo "Listando arquivos na pasta $ANDROID_HOME/emulator/emulator:"
+          ls $ANDROID_HOME/emulator/emulator  # Lista os arquivos no diretório especificado
+
           nohup $ANDROID_HOME/emulator/emulator -avd test -no-window -gpu swiftshader_indirect -no-accel &> emulator.log &
           echo "Esperando o emulador inicializar..."
           adb wait-for-device
